@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PG_URL")
+}
+
+
+model Person {
+  id        Int        @id @default(autoincrement())
+  username  String?   @unique
+  password  String?   
+  firstName String?
+  lastName  String?
+  email     String?   @unique
+  phoneNumber String? @unique
+  gender    Gender?    
+  profileImage String?
+  isSuspended Boolean  @default(false)
+  isKYCDone  Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  role      PersonRole  @default(CUSTOMER)
+  subscription Subscription @default(FREE)
+  location  Location?  @relation(fields: [locationId], references: [id])
+  locationId Int?
+  imei      String?
+  businessName String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PersonRole {
+  CUSTOMER
+  MERCHANT
+  ADMIN
+}
+
+enum Subscription {
+  FREE
+  BASIC
+  PRO
+}
+
+
+model Location {
+  id           Int        @id @default(autoincrement())
+  shopNo      String?
+  edificeNo   String?
+  streetName   String    @default("")
+  cityTownName String    @default("")
+  lga         String    @default("")
+  state       String    @default("")
+  zipCode     String?
+}
