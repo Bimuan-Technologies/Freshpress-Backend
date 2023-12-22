@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PG_URL")
+}
+
+model AuditLog {
+  pk      Int @id @default(autoincrement())
+  logId                String      @unique @default(uuid()) @map("log_id") @db.Uuid
+  origin               String?
+  userId               String?     @map("user_id")
+  userEmail            String?     @map("user_email")
+  userAgent            String?     @map("user_agent")
+  isBot                Boolean?    @map("is_bot")
+  clientType           ClientType? @map("client_type")
+  clientIp             String?     @map("client_ip")
+  serverIp             String?     @map("server_ip")
+  serverMacAddress     String?     @map("server_mac_address")
+  endpoint             String?
+  operationDescription String?     @map("operation_description")
+  inputData            String?     @map("input_data")
+  response             String?
+  meta                 Json?
+  externalId           String?     @map("external_id")
+  logType              LogType     @default(BEHAVOURIAL) @map("log_type")
+  date                 DateTime?   @default(now()) @map("date")
+
+  @@map("audit_log")
+}
+
+enum ClientType {
+  WEB
+  MOBILE
+  API
+  IOT
+}
+
+enum LogType {
+  REQUEST
+  BEHAVOURIAL
+}
+
+
+
+
+model Person {
+  pk        Int        @id @default(autoincrement())
+  personId    String @unique @default(uuid()) @map("person_id")
+  password  String?   
+  email     String?   @unique
+  phoneNumber String? @unique @map("phone_number")    
+  hasVerifiedEmail  Boolean? @default(false) @map("has_verified_email")
+  isBlocked Boolean?  @default(false) @map("is_blocked")
+  isLocked Boolean? @default(false) @map("is_locked")
+  lockedReason  String? @map("locked_reason")
+  lockedAt    DateTime? @map("locked_at")
+  passwordFailedCounter Int? @default(0) @map("password_fail_counter")
+  isKYCDone  Boolean  @default(false)
+  profile Profile?
+  subscription Subscription @default(FREE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+
+  @@unique([pk, personId])
+  @@map("persons")
+}
+
+model Profile {
+  pk        Int        @id @default(autoincrement())
+  profileId                      String                   @unique @default(uuid()) @map("profile_id")
+  preferredName                  String?                  @map("preferred_name")
+  firstName                      String?                  @map("first_name")
+  lastName                       String?                  @map("last_name")
+  otherName                      String?                  @map("other_name")
+  email                          String?                  @unique
+  phoneNumber                    String?                  @unique @map("phone_number")
+  gender    Gender?
+  profileImg                     String?                  @map("profile_img")
+  dateOfBirth                    DateTime?                @map("date_of_birth")
+  location  Location?
+  imei      String?
+  businessName String?
+  hasRegisteredBusiness          Boolean?                 @default(false)
+  isUpgradedAccount              Boolean?                 @default(false) @map("is_upgraded_account")
+  hasSetTransactionPin           Boolean?                 @default(false)
+  nationality                    String?
+  transactionPin                 String?
+  role      PersonRole  @default(CUSTOMER)
+  refereeCode                    String?                  @map("referee_code")
+  referralCode                   String?                  @unique @map("referral_code")
+  person                         Person                   @relation(fields: [personPk, personId], references: [pk, personId], onDelete: Cascade, onUpdate: Cascade)
+  personPk                         Int                      @map("person_pk")
+  personId                         String                   @unique @map("person_id")
+
+  @@unique([personId, personPk])
+}
+
+
+model Location {
+  pk          Int        @id @default(autoincrement())
+  shopNo      String?
+  edificeNo   String?
+  streetName   String?
+  city String?
+  lga         String?
+  state       String?
+  zipCode     String?
+  owner Profile @relation(fields: [personId], references: [pk])
+  personId Int @unique
+}
+
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PersonRole {
+  CUSTOMER
+  MERCHANT
+  ADMIN
+}
+
+enum Subscription {
+  FREE
+  BASIC
+  PRO
+}

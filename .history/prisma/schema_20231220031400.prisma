@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PG_URL")
+}
+
+model AuditLog {
+  pk      Int @id @default(autoincrement())
+  logId                String      @unique @default(uuid()) @map("log_id") @db.Uuid
+  origin               String?
+  userId               String?     @map("user_id")
+  userEmail            String?     @map("user_email")
+  userAgent            String?     @map("user_agent")
+  isBot                Boolean?    @map("is_bot")
+  clientType           ClientType? @map("client_type")
+  clientIp             String?     @map("client_ip")
+  serverIp             String?     @map("server_ip")
+  serverMacAddress     String?     @map("server_mac_address")
+  endpoint             String?
+  operationDescription String?     @map("operation_description")
+  inputData            String?     @map("input_data")
+  response             String?
+  meta                 Json?
+  externalId           String?     @map("external_id")
+  logType              LogType     @default(BEHAVOURIAL) @map("log_type")
+  date                 DateTime?   @default(now()) @map("date")
+
+  @@map("audit_log")
+}
+
+enum ClientType {
+  WEB
+  MOBILE
+  API
+  IOT
+}
+
+enum LogType {
+  REQUEST
+  BEHAVOURIAL
+}
+
+
+
+
+model Person {
+  id        Int        @id @default(autoincrement())
+  username  String?   @unique
+  password  String?   
+  firstName String?
+  lastName  String?
+  email     String?   @unique
+  phoneNumber String? @unique
+  gender    Gender?    
+  profileImage String?
+  isSuspended Boolean  @default(false)
+  isKYCDone  Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  role      PersonRole  @default(CUSTOMER)
+  subscription Subscription @default(FREE)
+  location  Location?
+  imei      String?
+  businessName String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+}
+
+
+model Location {
+  id           Int        @id @default(autoincrement())
+  shopNo      String?
+  edificeNo   String?
+  streetName   String    @default("")
+  cityTownName String    @default("")
+  lga         String    @default("")
+  state       String    @default("")
+  zipCode     String?
+  owner Person @relation(fields: [personId], references: [id])
+  personId Int @unique
+}
+
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PersonRole {
+  CUSTOMER
+  MERCHANT
+  ADMIN
+}
+
+enum Subscription {
+  FREE
+  BASIC
+  PRO
+}
