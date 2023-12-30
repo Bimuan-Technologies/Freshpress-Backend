@@ -1,0 +1,355 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PG_URL")
+}
+
+model AuditLog {
+  pk      Int @id @default(autoincrement())
+  logId                String      @unique @default(uuid()) @map("log_id") @db.Uuid
+  origin               String?
+  userId               String?     @map("user_id")
+  userEmail            String?     @map("user_email")
+  userAgent            String?     @map("user_agent")
+  isBot                Boolean?    @map("is_bot")
+  clientType           ClientType? @map("client_type")
+  clientIp             String?     @map("client_ip")
+  serverIp             String?     @map("server_ip")
+  serverMacAddress     String?     @map("server_mac_address")
+  endpoint             String?
+  operationDescription String?     @map("operation_description")
+  inputData            String?     @map("input_data")
+  response             String?
+  meta                 Json?
+  externalId           String?     @map("external_id")
+  logType              LogType     @default(BEHAVOURIAL) @map("log_type")
+  date                 DateTime?   @default(now()) @map("date")
+
+  @@map("audit_log")
+}
+
+enum ClientType {
+  WEB
+  MOBILE
+  API
+  IOT
+}
+
+enum LogType {
+  REQUEST
+  BEHAVOURIAL
+}
+
+
+
+
+model Person {
+  pk        Int        @id @default(autoincrement())
+  personId    String @unique @default(uuid()) @map("person_id")
+  hash      String
+  hashedRt  String?   
+  email     String?   @unique
+  phoneNumber String? @unique @map("phone_number")    
+  hasVerifiedEmail  Boolean? @default(false) @map("has_verified_email")
+  isBlocked Boolean?  @default(false) @map("is_blocked")
+  isLocked Boolean? @default(false) @map("is_locked")
+  lockedReason  String? @map("locked_reason")
+  lockedAt    DateTime? @map("locked_at")
+  passwordFailedCounter Int? @default(0) @map("password_fail_counter")
+  isKYCDone  Boolean  @default(false)
+  profile Profile?
+  subscription Subscription @default(FREE)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now())
+
+  @@unique([pk, personId])
+  @@map("persons")
+}
+
+model Profile {
+  pk                             Int                      @id @default(autoincrement())
+  profileId                      String                   @unique @default(uuid()) @map("profile_id")
+  preferredName                  String?                  @map("preferred_name")
+  firstName                      String?                  @map("first_name")
+  lastName                       String?                  @map("last_name")
+  otherName                      String?                  @map("other_name")
+  email                          String?                  @unique
+  phoneNumber                    String?                  @unique @map("phone_number")
+  gender                         Gender?
+  avatar                         String?                     @map("profile_img")
+  bio                            String?
+  dateOfBirth                    DateTime?                @map("date_of_birth")
+  businessName String?
+  hasRegisteredBusiness          Boolean?                 @default(false)
+  isUpgradedAccount              Boolean?                 @default(false) @map("is_upgraded_account")
+  hasSetTransactionPin           Boolean?                 @default(false)
+  nationality                    String?
+  transactionPin                 String?
+  role                           PersonRole                @default(CUSTOMER)
+  refereeCode                    String?                  @map("referee_code")
+  referralCode                   String?                  @unique @map("referral_code")
+  person                         Person                   @relation(fields: [personPk, personId], references: [pk, personId], onDelete: Cascade, onUpdate: Cascade)
+  personPk                       Int                    @map("person_pk")
+  personId                       String                 @map("person_id")
+  bankAccounts                   EschrowAccount[]
+  addressVerifications           AddressVerification[]
+  hasSubmitedDocumentsForReview  Boolean?                 @map("has_submited_documents_for_review")
+  acceptedTermsAndConditions     Boolean?                 @default(true) @map("accepted_terms_and_Conditions")
+  transactions                   Transaction[]
+  disputeRecord                  DisputeRecord[]
+  location                       Location?
+  reviews                        Review[]
+  laundryService                 LaundryService[]
+  createdAt                      DateTime                 @default(now()) @map("created_at")
+  updatedAt                      DateTime                 @updatedAt @map("updated_at")
+
+  @@unique([personPk, personId])
+  @@unique([pk, profileId])
+  @@map("profiles")
+}
+
+
+model Location {
+  pk          Int        @id @default(autoincrement())
+  latitude   Float
+  longitude  Float
+  shopNo      String?
+  edificeNo   String?
+  streetName   String?
+  city String?
+  lga         String?
+  state       String?
+  zipCode     String?
+  owner Profile @relation(fields: [personId], references: [pk])
+  personId Int @unique
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+
+  @@map("locations")
+}
+
+
+model LaundryService {
+    pk          Int   @id @default(autoincrement())
+    owner       Profile @relation(fields: [personId], references: [pk])
+    personId    Int @unique
+    serviceName String
+    description String?
+    rating      Float?
+
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @default(now()) @map("updated_at")
+
+    @@map("laundry_services")
+}
+
+model ServiceRequest {
+    pk            Int       @id @default(autoincrement())
+    customerId    String    @map("customer_id")
+    providerId    String    @map("provider_id")
+    status        String    @default("pending")
+    scheduledAt   DateTime
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @default(now()) @map("updated_at")
+
+    @@map("service_requests")
+}
+
+model Review {
+  pk         Int      @id @default(autoincrement())
+  customerId  String   @map("customer_id")
+  providerId  String   @map("provider_id")
+  rating      Float
+  comment     String?
+  profile     Profile[]
+  profilePk   Int?               @map("profile_pk")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  @@map("reviews")
+}
+
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PersonRole {
+  CUSTOMER
+  SERVICE_PROVIDER
+  ADMIN
+}
+
+enum Subscription {
+  FREE
+  BASIC
+  PRO
+}
+
+enum ProfileSetupProgress {
+  REGISTERED
+  PROFILE_SETUP
+  PROFILE_SETUP_AWAITING_OTP
+  LIVENESS_VERIFIED
+  PROFILE_SETUP_COMPLETED
+  ACCOUNT_CREATED
+  AWAITING_ACCOUNT_NUMBER
+  ACCOUNT_NUMBER_RETRIEVED
+}
+
+// ------------------------------------------------------------------------
+
+model EschrowAccount {
+  pk               Int              @id @default(autoincrement())
+  accountId        String           @unique @default(uuid()) @map("account_id")
+  accountNumber    String?          @unique @map("account_number")
+  accountBalance   String?          @map("account_balance")
+  accountName      String?          @map("account_name")
+  customerId       String?          @map("customer_id")
+  accountLimit     Int?             @default(1000000) @map("account_limit")
+  currency         String
+  reference        String?
+  isPrimaryAccount Boolean          @default(false) @map("is_primary_account")
+  profile          Profile?         @relation(fields: [profilePk, profileId], references: [pk, profileId], onDelete: Cascade, onUpdate: Cascade)
+  profilePk        Int?             @map("profile_pk")
+  profileId        String?          @map("profile_id")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  @@unique([pk, accountId])
+  @@map("bank_accounts")
+}
+
+model AddressVerification {
+  pk                 Int                       @id @default(autoincrement())
+  verificationId     String                    @unique @default(uuid()) @map("verification_id")
+  verificationStatus AddressVerificationStatus @default(PENDING) @map("verification_status")
+  verificationType   AddressVerificationType   @map("verification_type")
+  gpsCoordinates     String                    @map("gps_coordinates")
+  address            String                    @map("address")
+  phoneNumber        String                    @map("phone_number")
+  images             String[]
+  createdAt          DateTime                  @default(now()) @map("created_at")
+  updatedAt          DateTime                  @updatedAt @map("updated_at")
+  profile            Profile                   @relation(fields: [profilePk, profileId], references: [pk, profileId], onDelete: Cascade, onUpdate: Cascade)
+  profilePk          Int                       @map("profile_pk")
+  profileId          String                    @map("profile_id")
+
+  @@map("address_verifications")
+}
+
+model Transaction {
+  pk                            Int                @id @default(autoincrement())
+  transactionId                 String             @unique @default(uuid()) @map("transcation_id")
+  transactionAmount             String             @map("transaction_amount")
+  transactionStatus             TransactionStatus? @default(PENDING) @map("transaction_status")
+  transactionType               TransactionType    @map("transcation_type")
+  paymentDirection              PaymentDirection   @default(DEBIT) @map("payment_direction")
+  reasonForFailure              String?
+  transactionDate               DateTime?          @default(now()) @map("transaction_date")
+  transactionRef                String?            @map("transcation_ref")
+  isEcobankToEcobankTransaction Boolean?           @default(false) @map("is_ecobank_to_ecobank_transaction")
+  billerCode                    String?            @map("biller_code") // billerCode in-case payment type is a biller payment
+  billerId                      String?            @map("biller_Id") // billerId in-case payment type is a biller payment
+  billerPaymentRef              String?            @map("biller_payment_ref") // reference to payment after biller payment has successfully been made
+  productCode                   String?            @map("product_code")
+  currency                      String
+  transactionTitle              String?            @map("transaction_title")
+  narration                     String?
+  bulkPaymentGroupId            String?            @map("bulk_payment_group_id") // this id is used to group a bunch of bulk payment's together (so every transaction with the type BULK_TRANSER with this id would be in the same group)
+  ussdReferenceCode             String?            @map("ussd_reference_code") // field to keep track of ref generated for ussd payment
+  qrCodeBase64                  String?            @map("qr_code_base64")
+  sourceAccountPk               Int                @map("source_account_pk")
+  sourceAccountId               String             @map("source_account_id")
+  receiver                      String? // recipent of transaction if it's a debit
+  sender                        String? // sender of transaction if payment direction is credit
+  sendersBank                   String?            @map("senders_bank") // sender's bank
+  sendersBankCode               String?            @map("senders_bank_code")
+  sendersAccountNumber          String?            @map("senders_account_number") // sender's AccountNumber
+  sendersPhoneNumber            String?            @map("senders_phone_number") // sender's phoneNumber
+  destinationBank               String?            @map("destination_bank")
+  destinationBankCode           String?            @map("destination_bank_code")
+  destinationAccountNumber      String?            @map("destination_account_number")
+  profile                       Profile?           @relation(fields: [profilePk, profileId], references: [pk, profileId], onDelete: Cascade, onUpdate: Cascade)
+  profilePk                     Int?               @map("profile_pk")
+  profileId                     String?            @map("profile_id")
+
+  @@map("transactions")
+}
+
+model DisputeRecord {
+  pk              Int      @id @default(autoincrement())
+  id              String   @unique @default(uuid())
+  caseId          String   @map("case_id")
+  caseLog         String   @map("case_log")
+  caseType        String?  @map("case_type")
+  caseCategory    String?  @map("case_category")
+  caseSubCategory String?  @map("case_sub_category")
+  description     String?
+  profile         Profile  @relation(fields: [profilePk, profileId], references: [pk, profileId])
+  profilePk       Int      @map("profile_pk")
+  profileId       String   @map("profile_id")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("dispute_records")
+}
+
+enum PaymentDirection {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionType {
+  BULK_TRANSFER
+  BILL_PAYMENT
+  FOREIGN_TRANSFER
+  SINGLE_TRANSFER
+  AIRTIME_TOPUP
+  QR_PAYMENT
+  PAYMENT_LINK
+  MOBILE_POS
+  USSD
+}
+
+enum TransactionStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+enum AddressVerificationStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+enum AddressVerificationType {
+  PHYSICAL @map("Physical")
+  DIGITAL  @map("Digital")
+}
+
+
+
+
+enum DocumentType {
+  VNIN @map("v_nin")
+  BVN  @map("bvn")
+  TIN  @map("tin")
+  CAC  @map("cac")
+}
+
+enum DocumentVerificationStatus {
+  PENDING
+  FAILED
+  SUCCESS
+
+  @@map("document_verification_status")
+}
