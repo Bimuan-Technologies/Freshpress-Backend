@@ -18,26 +18,12 @@ export class IdentityAuthService {
     private readonly twillioService: TwillioService,
   ) {}
 
-  async sendOtpSmsService(
-    to: string,
-  ): Promise<object> {
+  async verifyPhone(to: string): Promise<string> {
     if (to.length < 0)
       throw new BadRequestException(
         'Invalid Phone Number',
       );
-    try {
-      await this.twillioService.sendOtpSms(to);
-      return {
-        success: true,
-        message: 'OTP SMS sent successfully',
-      };
-    } catch (error) {
-      console.log(error);
-      return {
-        success: false,
-        message: 'Failed to send OTP SMS',
-      };
-    }
+    return;
   }
 
   async validateOtp(

@@ -32,7 +32,6 @@ export class IdentityAuthService {
         message: 'OTP SMS sent successfully',
       };
     } catch (error) {
-      console.log(error);
       return {
         success: false,
         message: 'Failed to send OTP SMS',

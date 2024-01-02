@@ -36,6 +36,7 @@
     "express-session": "^1.17.3",
     "mysql": "^2.18.1",
     "nest-winston": "^1.9.4",
+    "nestjs-twilio": "^4.2.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",

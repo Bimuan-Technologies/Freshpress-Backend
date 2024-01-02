@@ -26,13 +26,15 @@ export class IdentityAuthService {
         'Invalid Phone Number',
       );
     try {
-      await this.twillioService.sendOtpSms(to);
+      await this.twillioService.sendOtpSms(
+        '08034477604',
+        to,
+      );
       return {
         success: true,
         message: 'OTP SMS sent successfully',
       };
     } catch (error) {
-      console.log(error);
       return {
         success: false,
         message: 'Failed to send OTP SMS',

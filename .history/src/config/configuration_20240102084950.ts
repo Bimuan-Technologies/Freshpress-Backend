@@ -16,7 +16,7 @@ export default () => ({
     // database_password: '__Cstemp_#' || process.env.DATABASE_PASSWORD,
     // database_synchronize: process.env.DATABASE_SYNC === 'true',
   },
-  sms: {
+  twillio: {
     twillio_account_sid:
       process.env.TWILIO_ACCOUNT_SID,
     twillio_auth_token:

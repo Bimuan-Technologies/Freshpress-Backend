@@ -31,7 +31,7 @@ export class IdentityAuthController {
   ) {}
 
   @Public()
-  @Get('send-otp/:phone')
+  @Get('verify-phone/:phone')
   @HttpCode(HttpStatus.ACCEPTED)
   async verifyPhoneNumber(
     @Param('phone') phoneNumber: string,
