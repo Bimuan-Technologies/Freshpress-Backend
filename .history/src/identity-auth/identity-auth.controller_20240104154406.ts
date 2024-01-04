@@ -99,9 +99,8 @@ export class IdentityAuthController {
     );
   }
 
-  @Public()
   @Get('send-email')
-  sendEmailConfirmation() {
+  sendEmailConfirmation(): void {
     return this.identityAuthService.testMailSending();
   }
 }

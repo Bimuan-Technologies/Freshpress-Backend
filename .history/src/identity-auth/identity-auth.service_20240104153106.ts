@@ -53,10 +53,6 @@ export class IdentityAuthService {
     return 'Successfully';
   }
 
-  async testMailSending(): Promise<void> {
-    this.mailService.sendMail();
-  }
-
   async signupLocal(
     dto: AuthDto,
   ): Promise<Token> {

@@ -99,7 +99,6 @@ export class IdentityAuthController {
     );
   }
 
-  @Public()
   @Get('send-email')
   sendEmailConfirmation() {
     return this.identityAuthService.testMailSending();

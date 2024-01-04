@@ -19,6 +19,7 @@ import { RatingReviewController } from './api/rating_review/rating_review.contro
 import { RatingReviewService } from './api/rating_review/rating_review.service';
 import { RatingReviewModule } from './api/rating_review/rating_review.module';
 import { CustomTwillioModule } from './api/twillio/twillio.module';
+import { MailModule } from './api/mail/mail.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CustomTwillioModule } from './api/twillio/twillio.module';
     ProfileModule,
     RatingReviewModule,
     CustomTwillioModule,
+    MailModule,
   ],
   controllers: [RatingReviewController],
   providers: [

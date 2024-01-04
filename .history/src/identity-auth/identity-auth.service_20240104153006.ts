@@ -9,7 +9,6 @@ import { Token } from 'src/common/types';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TwillioService } from 'src/api/twillio/twillio.service';
-import { MailService } from 'src/api/mail/mail.service';
 
 @Injectable()
 export class IdentityAuthService {
@@ -51,10 +50,6 @@ export class IdentityAuthService {
         'Phone Number or OTP is missing',
       );
     return 'Successfully';
-  }
-
-  async testMailSending(): Promise<void> {
-    this.mailService.sendMail();
   }
 
   async signupLocal(

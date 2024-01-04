@@ -98,10 +98,4 @@ export class IdentityAuthController {
       refreshToken,
     );
   }
-
-  @Public()
-  @Get('send-email')
-  sendEmailConfirmation() {
-    return this.identityAuthService.testMailSending();
-  }
 }
